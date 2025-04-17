@@ -3,16 +3,17 @@
 ## 🔄 项目状态概览 (来自.cursorscratchpad)
 
 ### 📊 模块状态
-- ✅ 可用模块: BMS数据可视化, 可视化面板, 市场报告, 数据分析, 数据收集, 评分引擎, 项目追踪
+- ✅ 可用模块: BMS数据可视化, LLM提取器, 其他, 可视化面板, 市场报告, 数据分析, 数据收集, 竞争分析, 评分引擎, 项目追踪
+- 🟡 部分可用: 电子邮件摘要
 
 ### 🔍 最近变更 (7天内)
-- 🆕 新增: .gitignore (数据分析)
-- 🔄 更新: README.md (数据分析)
-- 🆕 新增: test_chrome_scraper.py (数据分析)
-- 🆕 新增: test_chromestore.py (数据分析)
-- 🗑️ 删除: report_generator.cpython-310.pyc (数据分析)
-- 🆕 新增: weekly_radar.yml (数据分析)
-- 🆕 新增: V1 (数据分析)
+- 🆕 新增: .cursorscratchpad (其他)
+- 🆕 新增: weekly_radar.yml (其他)
+- 🆕 新增: .gitignore (其他)
+- 🆕 新增: config.toml (其他)
+- 🆕 新增: "BMSå¸åºåææ¥å.md" (其他)
+- 🆕 新增: V1 (其他)
+- 🆕 新增: V2 (其他)
 
 ### ⚠️ 关键问题
 1. 部分行业数据可能需要更新，尤其是快速变化的技术领域

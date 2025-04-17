@@ -42,6 +42,9 @@ market_demand_radar/
 ├── PRDs/                     # 产品需求文档
 │   ├── V1                    # V1产品需求
 │   └── V2                    # V2产品需求
+├── tools/                    # 工具目录
+│   └── update_scratchpad.py  # 项目状态追踪工具
+├── .cursorscratchpad         # 项目状态跟踪文件
 ├── requirements.txt          # 项目依赖
 └── README.md                 # 项目文档
 ```
@@ -136,10 +139,9 @@ pytest
 pytest tests/unit/test_scoring.py
 ```
 
-## 📈 PRD状态追踪
+## 📈 项目状态
 
-基于 PRDs/V2 的需求状态：
-
+### 模块状态
 - ✅ 数据源集成 (Reddit, ProductHunt, AppStore, ChromeWebStore)
 - ✅ LLM提取器实现（使用GPT-3.5-turbo）
 - ✅ 评分引擎实现
@@ -150,11 +152,15 @@ pytest tests/unit/test_scoring.py
 - ⚠️ 电子邮件摘要（部分实现）
 - ⚠️ 测试覆盖率不全
 
+### 已知问题
+1. 部分行业数据可能需要更新，尤其是快速变化的技术领域
+2. 报告之间的数据格式尚未完全统一，可能需要标准化处理
+
 ## 📄 授权
 MIT
 
 ## 🤝 贡献
-欢迎提交 Pull Request!
+欢迎提交问题和拉取请求！请参阅[贡献指南](CONTRIBUTING.md)了解详情。
 
 ## 快速开始
 
@@ -197,11 +203,3 @@ MIT
 - Product Hunt新产品
 - App Store评论
 - Chrome Web Store扩展
-
-## 贡献
-
-欢迎提交问题和拉取请求！请参阅[贡献指南](CONTRIBUTING.md)了解详情。
-
-## 许可
-
-本项目基于MIT许可证发布。详见[LICENSE](LICENSE)文件。
