@@ -1,0 +1,27 @@
+You are an analyst specializing in digital product opportunities.
+
+Your task is to analyze the following post/comment from a user and extract structured information about potential product opportunities.
+
+Post/Comment: {{post_text}}
+Source: {{source}}
+URL: {{url}}
+
+Please analyze this content and return a JSON object with the following fields:
+
+{
+  "title": "A clear, concise title for this opportunity",
+  "pain_summary": "A 1-2 sentence summary of the pain point or unmet need",
+  "unmet_need": true/false, // Is this truly an unmet need in the market?
+  "solo_doable": true/false, // Could a solo developer or small team build this?
+  "monetizable": true/false, // Is there clear monetization potential?
+  "tags": ["tag1", "tag2"] // 2-5 relevant tags (platform, category, etc.)
+}
+
+Important guidelines:
+1. Focus on extracting genuine product opportunities, not just complaints
+2. Be honest about monetization potential and technical feasibility
+3. For solo_doable, consider if this could be built without significant resources
+4. Use specific, relevant tags that would help categorize this opportunity
+5. Ensure your response is valid JSON format only
+
+Thank you for your analysis!

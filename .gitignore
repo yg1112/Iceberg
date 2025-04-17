@@ -1,0 +1,88 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.env
+
+# Virtual Environment
+venv/
+ENV/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.cursor/
+.cursor_rules/
+.cursorrules
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+*.log
+cache/
+reports/*.png
+reports/*.html
+*.html
+chrome_store_*.html
+product_hunt_*.html
+
+# Testing
+.coverage
+htmlcov/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Large files
+app_dev/PropertyDNA/1465-Bonnie-Court.pdf
+app_dev/Rephraser/gpt2-banfo/pytorch_model.bin
+*.bin
+*.h5
+*.ckpt
+*.pth
+*.pt
+*.model
+*.pb
+
+# Directories
+.cursor/
+.cursor_rules/
+.vscode/
+temp_repo/ 

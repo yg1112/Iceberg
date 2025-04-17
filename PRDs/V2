@@ -1,0 +1,146 @@
+# PRD v2 — **Market Demand Radar**  
+*(Unambiguous, engineer‑ready)*
+
+---
+## 1. Product Statement
+> **Deliver a daily, high‑signal list of digital‑product opportunities (apps, extensions, SaaS) ranked by Demand × Supply gap, enriched with competitive metrics and action check‑list, and distributed via dashboard + email digest.**
+
+---
+## 2. Objectives & KPIs
+| Objective | KPI | Target (90 days) |
+|-----------|-----|------------------|
+| 提供高质量机会 | Gold‑Zone items / day | **≥ 5** |
+| 用户参与 | Dashboard DAU | **≥ 30 %** |
+| 转化为行动 | “I’m building” clicks | **≥ 15 %** |
+| 收费转化 | Pro 订阅率 | **≥ 5 %** |
+
+---
+## 3. Personas
+| Persona | Job To Be Done | P0 Features |
+|---------|---------------|-------------|
+| Indie Hacker | 找到可做 side‑project 并验证 | Gold‑Zone 榜单、MVP scope、预付费验证指南 |
+| Angel Investor | 发现早期项目、评估规模 | Demand‑trend 图、团队招募信号、竞品壁垒表 |
+| PM / Growth | 获取痛点灵感、对标竞品 | 负评提炼、功能差距矩阵、评分下滑警报 |
+
+---
+## 4. Scope (v2)
+### 4.1 数据源 (必须)
+| 源 | Endpoint | 更新频率 |
+|----|----------|---------|
+| Reddit | r/macapps, r/iphone, r/chrome_extensions | 每 6 h |
+| Product Hunt Asks | /v2/posts?search[category]=asks | 每日 |
+| App Store Reviews | App IDs 配置列表 | 每日 |
+| Chrome Web Store | Top 250 Extensions (自动爬) | 每周 |
+
+### 4.2 模块
+1. **Scraper SDK** (`/src/scrapers`)  
+   - Async fetch → JSON schema `RawPost`
+2. **LLM Extractor** (`/src/extractor.py`)  
+   - Model: `gpt-3.5-turbo`  
+   - Prompt version 2 (见附录)  
+   - Output schema:
+```json
+{
+  "title": str,
+  "pain_summary": str,
+  "unmet_need": bool,
+  "solo_doable": bool,
+  "monetizable": bool,
+  "tags": [str]
+}
+```
+3. **Scoring Engine** (`/src/scoring.py`)  
+```
+DemandScore   = log10(post_score+1)*10 + sentiment*10 + velocity*20
+SupplyScore   = app_count*5 + avg_rating*2
+Opportunity   = DemandScore - SupplyScore
+```
+4. **Competitive Fetcher** (`/src/competitive.py`)  
+   - App Store rating trend (6 mo)  
+   - Chrome Store users & rating
+5. **Report Builder** (`/src/report.py`)  
+   - Markdown + Mermaid radar  
+   - Sections: ExecSummary • Top 5 • DetailSheets • Appendix
+6. **Distribution**  
+   - **Dashboard**: Streamlit, path `/dash`  
+   - **Weekly Email**: Buttondown API (`/jobs/email_digest.py`)
+
+---
+## 5. Detailed Requirements
+### 5.1 Exec Summary Block
+- 字数 ≤ 120 字
+- 必含字段：`idea`, `score`, `why_now`, `next_step`
+
+### 5.2 Gold‑Zone 规则
+```
+Opportunity ≥ 70
+DemandScore  ≥ 50
+SupplyScore  ≤ 30
+```
+列表按 Opportunity 降序，最多 10 条。
+
+### 5.3 Dashboard UX (Streamlit)
+- 左侧 Filters：时间范围、Demand ≥ slider、Tags multiselect
+- 主区：
+  1. Gold‑Zone 表 (click → detail)  
+  2. Trend chart (line)  
+  3. Pain snippet (tooltip)
+- 响应时间：查询 < 300 ms @ 1000 rows
+
+### 5.4 Email Digest
+- 发送时间：每周一 08:00 UTC via cron
+- 内容：ExecSummary + Top 5 + “Start‑Building” CTA
+
+### 5.5 Reliability
+- Scraper retry 3 次，指数回退
+- 数据库 Postgres + `unique(title)` 约束
+- Pipeline 日志写 CloudWatch / stdout
+
+---
+## 6. Tech Stack
+| Layer | Choice | Note |
+|-------|--------|------|
+| Backend | Python 3.11 | Poetry 管理 |
+| Async | `httpx`, `asyncio` | Scrapers |
+| LLM | OpenAI 3.5 turbo | 可注入 4 turbo |
+| DB | Postgres 15 | Heroku / Supabase |
+| Dashboard | Streamlit | 部署 on Render |
+| Scheduler | GitHub Actions cron | 简化 infra |
+
+---
+## 7. Milestones & Timeline
+| 周 | 交付 | Owner |
+|----|------|-------|
+| W1 | Scraper SDK + Reddit adapter | BE Eng |
+| W1 | Extractor prompt v2 + unit test | ML Eng |
+| W2 | Scoring engine + Gold‑Zone rule | BE Eng |
+| W2 | App Store review fetcher | BE Eng |
+| W3 | Report Builder (Markdown + Mermaid) | FE Eng |
+| W3 | Streamlit dashboard P0 | FE Eng |
+| W4 | Buttondown integration + weekly job | DevOps |
+| W4 | QA, load test, docs | QA |
+
+---
+## 8. Acceptance Criteria (必须全部通过)
+1. **Pipeline** 从触发到 Markdown 生成 ≤ 15 min。
+2. **Gold‑Zone** 至少列出 5 条，字段完整率 100 %。
+3. Dashboard 滑块调整后结果刷新 ≤ 300 ms。
+4. Buttondown 邮件成功发送，List ID 日志返回 200。
+
+---
+## 9. Open Risks & Mitigations
+| Risk | Probability | Mitigation |
+|------|-------------|-----------|
+| Reddit 限流 | 中 | 缓存增量、随机延迟 |
+| GPT 速率/成本 | 中 | 批量模式、错误回退本地模型 |
+| App Store 反爬 | 中 | 限速 + user‑agent pool |
+
+---
+## 10. Appendix – Prompt v2 (LLM)
+```
+You are an analyst...
+[...完整 prompt 省略，见 /prompts/opportunity_v2.txt]
+```
+
+*Prepared by PM Team • PRD v2 • 2025‑04‑15*
+

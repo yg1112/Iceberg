@@ -1,0 +1,120 @@
+# Product Requirements Document – **Market Demand Radar**
+
+## 1. Vision
+> **Empower solo builders, PMs, and early‑stage investors to discover, evaluate, and act on unmet digital‑product needs – before the market notices.**
+
+---
+
+## 2. Goals & Success Metrics
+| Goal | KPI | Target (6 mo) |
+|------|-----|---------------|
+| Deliver high‑signal opportunity feed | Avg. opportunities per week | ≥ 25 validated items |
+| User engagement | Weekly email open‑rate | ≥ 60 % |
+| Conversion to action | “I’m building this” clicks | ≥ 15 % of viewed items |
+| Revenue (paid tier) | MRR | \$3 k MRR by month 6 |
+
+---
+
+## 3. Personas
+| Persona | Pain Point | Must‑have Feature |
+|---------|-----------|-------------------|
+| **Indie Hacker** | Time‑poor, idea‑poor | Curated list + pre‑validation signals |
+| **Angel Investor** | Wants early deal‑flow | Demand × Supply matrix, team recruiting tags |
+| **Product Manager** | Needs continuous inspiration | Trend dashboard, competitor diff |
+
+---
+
+## 4. Functional Scope (MVP)
+1. **Multi‑source Scraper**  
+   • Reddit, Hacker News, Product Hunt / PH Asks  
+   • App Store & Chrome Web Store metadata (ratings, review count)  
+   • Frequency: daily batch (cron/Airflow)
+2. **Opportunity Extractor**  
+   • Keyword filter → GPT 3.5 turbo summarizer  
+   • Outputs JSON schema: `{title, pain_summary, unmet_need, solo_doable, monetizable, tags}`
+3. **Demand × Supply Scorer**  
+   • Demand Score = (post_score × sentiment × recency)  
+   • Supply Score = (# existing apps × rating avg)  
+   • Gold‑Zone = Demand ≥ 70 & Supply ≤ 30
+4. **Report Generator**  
+   • Markdown & HTML (Mermaid radar chart)  
+   • Saved to `/reports/top_ideas_YYYY‑MM‑DD.md`
+5. **Email Dispatcher**  
+   • Buttondown API  
+   • Weekly digest; link to Notion/Streamlit dashboard
+6. **CLI / Dashboard**  
+   • Streamlit: filters (recency, score), table view, export CSV
+
+_Out of scope for MVP:_ payment, Stripe pre‑orders, community comments.
+
+---
+
+## 5. Non‑Functional Requirements
+| Category | Requirement |
+|----------|-------------|
+| **Reliability** | Daily ETL job success ≥ 95 % |
+| **Performance** | Full pipeline < 15 min / day |
+| **Scalability** | Modular source adapters, easy to add new sources |
+| **Security** | Store secrets in env vars / Vault; no PII |
+
+---
+
+## 6. Technical Architecture
+```mermaid
+flowchart TD
+    A[Scheduler (Airflow)] --> B[Scraper Workers]
+    B --> C[Raw JSON Store (S3)]
+    C --> D[Opportunity Extractor (LLM)]
+    D --> E[Scoring Engine]
+    E --> F[Postgres]
+    F --> G[Report Generator]
+    G --> H[Buttondown API]
+    F --> I[Streamlit Dashboard]
+```
+
+---
+
+## 7. Detailed Tasks & Estimates
+| # | Task | Owner | Est. (days) |
+|---|------|-------|-------------|
+| 1 | Setup repo, CI, pre‑commit | Eng | 0.5 |
+| 2 | Reddit & HN scraper (async praw + requests) | Eng | 2 |
+| 3 | App Store & Chrome Store scraper | Eng | 3 |
+| 4 | LLM extractor module (prompt + retry) | Eng | 2 |
+| 5 | Scoring engine (Python class + unit tests) | Eng | 1.5 |
+| 6 | Markdown & Mermaid report builder | Eng | 1 |
+| 7 | Buttondown email service integration | Eng | 1 |
+| 8 | Streamlit dashboard POC | Eng | 2 |
+| 9 | Airflow DAG + Docker deploy | DevOps | 2 |
+| 10 | QA & load test | QA | 1 |
+| **Total** | | | **15 dev‑days (~3 wks)** |
+
+---
+
+## 8. Open Risks & Mitigations
+| Risk | Impact | Mitigation |
+|------|--------|-----------|
+| LLM 误判、幻觉 | 误导决策 | Prompt tuning + manual spot check flag |
+| API rate‑limits | 任务失败 | Exponential back‑off, cached delta fetch |
+| Source TOS 变更 | 数据缺失 | Modular adapters, switchable proxies |
+
+---
+
+## 9. Future Backlog (Post‑MVP)
+- Stripe 预付费 landing 自动部署
+- Slack / Telegram bot alerts
+- Community upvote & comment loop
+- Competitive traffic via Sensor Tower, Similarweb
+- AI “Build effort estimator” (story points ↔︎ dev hours)
+
+---
+
+## 10. Acceptance Criteria
+1. Cron job 06:00 UTC daily → Markdown + Email sent 07:00 UTC.  
+2. Dashboard显示 ≤ 24h 内数据；过滤交互 < 300 ms。  
+3. Gold‑Zone 列表 ≥ 5 条/周，含 JSON 分析字段完整率 100 %。
+
+---
+
+*Prepared by PM Team • April 2025*
+
